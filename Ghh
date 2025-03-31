@@ -1,5 +1,5 @@
 --[=[
-    Enhanced HttpSpy with Advanced Variable Logging
+    Enhanced HttpSpy with Advanced Variable Logging & Reverse Engineering
 ]=]
 
 if rconsoleprint then
@@ -8,8 +8,17 @@ end;
 
 assert(syn or http, "Unsupported exploit (should support syn.request or http.request)");
 
-local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true, BlockedURLs = {}, API = true };
-local version = "v2.0.0";
+local options = ({...})[1] or { 
+    AutoDecode = true, 
+    Highlighting = true, 
+    SaveLogs = true, 
+    CLICommands = true, 
+    ShowResponse = true, 
+    BlockedURLs = {}, 
+    API = true 
+};
+
+local version = "v3.0.0";
 local logname = string.format("%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"));
 
 if options.SaveLogs then
@@ -27,6 +36,27 @@ local function printf(...)
     end;
     return rconsoleprint(string.format(...));
 end;
+
+-- Reverse Engineering Utilities
+local function ReverseString(str)
+    return str:reverse()
+end
+
+local function Base64Encode(str)
+    return syn.crypt.base64.encode(str)
+end
+
+local function Base64Decode(str)
+    return syn.crypt.base64.decode(str)
+end
+
+local function XOREncrypt(str, key)
+    local result = ""
+    for i = 1, #str do
+        result = result .. string.char(bit32.bxor(string.byte(str, i), key))
+    end
+    return result
+end
 
 local function DeepScan()
     local results = {}
@@ -65,6 +95,13 @@ hookfunction(reqfunc, newcclosure(function(req)
     local RequestData = table.clone(req)
     printf("%s.request(%s)\n\n", libtype, Serializer.Serialize(RequestData));
     LogEnvironmentVariables()
+    
+    -- Attempting to decode and analyze the request
+    if options.AutoDecode and RequestData.Body then
+        printf("[Reversed String]: %s\n", ReverseString(RequestData.Body))
+        printf("[Base64 Decoded]: %s\n", pcall(Base64Decode, RequestData.Body) and Base64Decode(RequestData.Body) or "N/A")
+    end
+    
     return reqfunc(req);
 end));
 
@@ -72,4 +109,4 @@ if request then
     replaceclosure(request, reqfunc);
 end;
 
-rconsoleprint(string.format("Enhanced HttpSpy %s (Advanced Logging Enabled)\n", version));
+rconsoleprint(string.format("Enhanced HttpSpy %s (Advanced Logging & Reverse Engineering Enabled)\n", version));
