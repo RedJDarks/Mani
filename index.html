@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Live Execution Tracker</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+</head>
+<body>
+    <h1>Roblox Execution Tracker</h1>
+    <p>Active Users: <span id="active-users">0</span></p>
+    <p>Total Executions: <span id="total-executions">0</span></p>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMHq1TXghFPMbTP5J9vlSoq7ihHmQ1Wss",
+  authDomain: "track-c8445.firebaseapp.com",
+  databaseURL: "https://track-c8445-default-rtdb.firebaseio.com",
+  projectId: "track-c8445",
+  storageBucket: "track-c8445.firebasestorage.app",
+  messagingSenderId: "1011093642072",
+  appId: "1:1011093642072:web:4036ca967b7d3fc5ca232d",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const activeUsersRef = db.ref("active_users");
+        const totalExecutionsRef = db.ref("total_executions");
+
+        activeUsersRef.on("value", (snapshot) => {
+            document.getElementById("active-users").innerText = snapshot.val() || 0;
+        });
+
+        totalExecutionsRef.on("value", (snapshot) => {
+            document.getElementById("total-executions").innerText = snapshot.val() || 0;
+        });
+    </script>
+</body>
+</html>
